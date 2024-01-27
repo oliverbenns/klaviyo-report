@@ -28,11 +28,6 @@ func run() error {
 		return fmt.Errorf("error connecting to redis: %w", err)
 	}
 
-	appURL := os.Getenv("APP_URL")
-	if appURL == "" {
-		return fmt.Errorf("APP_URL not set")
-	}
-
 	apiKey := os.Getenv("API_KEY")
 	if apiKey == "" {
 		return fmt.Errorf("API_KEY not set")
@@ -47,7 +42,6 @@ func run() error {
 		Port:          8080,
 		RedisClient:   redisClient,
 		Logger:        logger,
-		AppURL:        appURL,
 		ApiKey:        apiKey,
 		KlaviyoClient: klaviyoClient,
 	}

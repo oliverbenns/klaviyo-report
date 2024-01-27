@@ -7,20 +7,17 @@ push: build
 	gcloud auth configure-docker ${IMAGE_TAG} --quiet
 	docker push ${IMAGE_TAG}
 
-# This will fail firs time because we don't yet have APP_URL.
-# Set this once cloud run has created and give us it.
 deploy: push
 	gcloud run deploy ${REPO_NAME}-${APP_NAME} \
 	  --image ${IMAGE_TAG} \
 	  --region ${REGION} \
 	  --project=${PROJECT_ID} \
 	  --allow-unauthenticated \
-	  --set-env-vars REDIS_URL=${REDIS_URL},GIN_MODE=${GIN_MODE},APP_URL=${APP_URL},API_KEY=${API_KEY}
+	  --set-env-vars REDIS_URL=${REDIS_URL},GIN_MODE=${GIN_MODE},API_KEY=${API_KEY}
 
 run: build
 	docker run -p 8080:8080 \
 	  -e REDIS_URL=${REDIS_URL} \
 	  -e GIN_MODE=release \
-	  -e APP_URL=${APP_URL} \
 	  ${IMAGE_TAG}
 
