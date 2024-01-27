@@ -7,16 +7,18 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/oliverbenns/klaviyo-report/generated/klaviyo"
 	redis "github.com/redis/go-redis/v9"
 	sloggin "github.com/samber/slog-gin"
 )
 
 type Service struct {
-	RedisClient *redis.Client
-	Port        int
-	Logger      *slog.Logger
-	AppURL      string
-	ApiKey      string
+	RedisClient   *redis.Client
+	Port          int
+	Logger        *slog.Logger
+	AppURL        string
+	ApiKey        string
+	KlaviyoClient *klaviyo.ClientWithResponses
 }
 
 func (s *Service) Run(ctx context.Context) error {

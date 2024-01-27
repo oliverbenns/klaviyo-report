@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/oliverbenns/klaviyo-report/generated/klaviyo"
 	"github.com/oliverbenns/klaviyo-report/internal/server/api"
 	redis "github.com/redis/go-redis/v9"
 )
@@ -37,12 +38,18 @@ func run() error {
 		return fmt.Errorf("API_KEY not set")
 	}
 
+	klaviyoClient, err := createKlaviyoClient(ctx)
+	if err != nil {
+		return fmt.Errorf("error creating klaviyo client: %w", err)
+	}
+
 	svc := api.Service{
-		Port:        8080,
-		RedisClient: redisClient,
-		Logger:      logger,
-		AppURL:      appURL,
-		ApiKey:      apiKey,
+		Port:          8080,
+		RedisClient:   redisClient,
+		Logger:        logger,
+		AppURL:        appURL,
+		ApiKey:        apiKey,
+		KlaviyoClient: klaviyoClient,
 	}
 
 	err = svc.Run(ctx)
@@ -51,6 +58,12 @@ func run() error {
 	}
 
 	return nil
+}
+
+func createKlaviyoClient(_ context.Context) (*klaviyo.ClientWithResponses, error) {
+	klaviyoClient, err := klaviyo.NewClientWithResponses("https://a.klaviyo.com")
+
+	return klaviyoClient, err
 }
 
 func createRedisClient(ctx context.Context) (*redis.Client, error) {
