@@ -1,11 +1,20 @@
 package api
 
 import (
-	"fmt"
+	"html/template"
+
+	"embed"
 
 	"github.com/gin-gonic/gin"
 	"github.com/oliverbenns/klaviyo-report/generated/klaviyo"
 )
+
+//go:embed report.html
+var reportContent embed.FS
+
+type KlaviyoReportTemplateData struct {
+	AccountName string
+}
 
 func (s *Service) GetKlaviyoReport(c *gin.Context) {
 	klaviyoAccountID := c.Param("klaviyo_account_id")
@@ -24,22 +33,21 @@ func (s *Service) GetKlaviyoReport(c *gin.Context) {
 		return
 	}
 
-	html := fmt.Sprintf(`
-		<html>
-			<head>
-				<title>Klaviyo Report Prototype</title>
-			</head>
-			<body>
-				<h1>Klaviyo Report Prototype</h1>
-				<hr />
-				<h3>Report for %s</h3>
+	tmpl, err := template.ParseFS(reportContent, "report.html")
+	if err != nil {
+		s.Logger.Error("failed to parse template", "error", err)
+		c.Status(500)
+		return
+	}
 
-				<p>The report goes here</p>
-			</body>
-		</html>
-	`, res.JSON200.Data.Attributes.ContactInformation.OrganizationName)
-
-	c.Writer.WriteString(html)
+	err = tmpl.Execute(c.Writer, KlaviyoReportTemplateData{
+		AccountName: res.JSON200.Data.Attributes.ContactInformation.OrganizationName,
+	})
+	if err != nil {
+		s.Logger.Error("failed to execute template", "error", err)
+		c.Status(500)
+		return
+	}
 
 	c.Status(200)
 	return
