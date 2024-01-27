@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/url"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -34,6 +35,7 @@ func (s *Service) Run(ctx context.Context) error {
 	router.Use(s.middleware)
 
 	router.GET("/", s.GetHome)
+	router.GET("/reports/:klaviyo_account_id", s.GetKlaviyoReport)
 
 	router.GET("/ping", s.GetPing)
 
@@ -54,6 +56,26 @@ func (s *Service) middleware(c *gin.Context) {
 }
 
 func (s *Service) GetHome(c *gin.Context) {
+	res, err := s.KlaviyoClient.GetAccountsWithResponse(c.Request.Context(), &klaviyo.GetAccountsParams{
+		Revision: "2023-12-15",
+	})
+	if err != nil {
+		s.Logger.Error("failed to get accounts", "error", err)
+		c.AbortWithStatus(500)
+		return
+	}
+
+	accountList := "<ul>"
+	for _, account := range res.JSON200.Data {
+		reportURLStr := fmt.Sprintf("/reports/%s", account.Id)
+		reportURL, _ := url.Parse(reportURLStr)
+		q := url.Values{}
+		q.Set("api_key", s.ApiKey)
+		reportURL.RawQuery = q.Encode()
+		accountList += fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\">%s</a></li>", reportURL, account.Attributes.ContactInformation.OrganizationName)
+	}
+	accountList += "</ul>"
+
 	html := fmt.Sprintf(`
 		<html>
 			<head>
@@ -61,12 +83,14 @@ func (s *Service) GetHome(c *gin.Context) {
 			</head>
 			<body>
 				<h1>Klaviyo Report Prototype</h1>
-				<p></p>
+				<hr />
+				<h3>Accounts</h3>
+				%s
 				<hr />
 				<a href="https://github.com/oliverbenns/klaviyo-report" target="_blank">Source code</a>
 			</body>
 		</html>
-	`)
+	`, accountList)
 
 	c.Writer.WriteString(html)
 

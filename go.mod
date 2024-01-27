@@ -3,6 +3,7 @@ module github.com/oliverbenns/klaviyo-report
 go 1.21.3
 
 require (
+	github.com/deepmap/oapi-codegen v1.16.2
 	github.com/getkin/kin-openapi v0.123.0
 	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-gonic/gin v1.9.1

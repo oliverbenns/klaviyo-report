@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/deepmap/oapi-codegen/pkg/securityprovider"
 	"github.com/oliverbenns/klaviyo-report/generated/klaviyo"
 	"github.com/oliverbenns/klaviyo-report/internal/server/api"
 	redis "github.com/redis/go-redis/v9"
@@ -28,14 +29,14 @@ func run() error {
 		return fmt.Errorf("error connecting to redis: %w", err)
 	}
 
+	klaviyoClient, err := createKlaviyoClient()
+	if err != nil {
+		return fmt.Errorf("error creating klaviyo client: %w", err)
+	}
+
 	apiKey := os.Getenv("API_KEY")
 	if apiKey == "" {
 		return fmt.Errorf("API_KEY not set")
-	}
-
-	klaviyoClient, err := createKlaviyoClient(ctx)
-	if err != nil {
-		return fmt.Errorf("error creating klaviyo client: %w", err)
 	}
 
 	svc := api.Service{
@@ -54,8 +55,20 @@ func run() error {
 	return nil
 }
 
-func createKlaviyoClient(_ context.Context) (*klaviyo.ClientWithResponses, error) {
-	klaviyoClient, err := klaviyo.NewClientWithResponses("https://a.klaviyo.com")
+func createKlaviyoClient() (*klaviyo.ClientWithResponses, error) {
+	klaviyoAPIKey := os.Getenv("KLAVIYO_API_KEY")
+	if klaviyoAPIKey == "" {
+		return nil, fmt.Errorf("KLAVIYO_API_KEY not set")
+	}
+
+	headerValue := fmt.Sprintf("Klaviyo-API-Key %s", klaviyoAPIKey)
+	apiKeyProvider, err := securityprovider.NewSecurityProviderApiKey("header", "Authorization", headerValue)
+	if err != nil {
+		return nil, err
+	}
+
+	editorFn := klaviyo.WithRequestEditorFn(apiKeyProvider.Intercept)
+	klaviyoClient, err := klaviyo.NewClientWithResponses("https://a.klaviyo.com", editorFn)
 
 	return klaviyoClient, err
 }
