@@ -32,6 +32,9 @@ func (s *Service) GetHome(c *gin.Context) {
 		return
 	}
 
+	// Even though we are listing and linking to accounts we are only supporting
+	// 1 API key at the minute which is at the account level therefore this
+	// kind of doesn't make too much sense as only 1 of the reports is going to work.
 	homeAccounts := []HomeTemplateAccount{}
 	for _, account := range res.JSON200.Data {
 		reportURLStr := fmt.Sprintf("/reports/%s", account.Id)

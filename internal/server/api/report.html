@@ -5,12 +5,64 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Klaviyo Report Prototype</title>
+    <style>
+      table {
+        width: 100%;
+        text-align: left;
+      }
+    </style>
   </head>
   <body>
     <h1>Klaviyo Report Prototype</h1>
     <hr />
     <h3>Report for {{.AccountName}}</h3>
 
-    <p>The report goes here</p>
+    <h4>Campaigns</h4>
+    <table>
+      <thead>
+        <th>Name</th>
+        <th>Total Recipients</th>
+        <th>Orders Placed</th>
+        <th>Conversion Rate</th>
+        <th>Conversion Value</th>
+        <th>Revenue Per Recipient</th>
+      </thead>
+      <tbody>
+        {{ range .Campaigns }}
+        <tr>
+          <td>{{ .Name }}</td>
+          <td>{{ .TotalRecipients }}</td>
+          <td>{{ .OrdersPlaced }}</td>
+          <td>{{ formatPercent .ConversionRate }}</td>
+          <td>{{ formatCcy .ConversionValue }}</td>
+          <td>{{ formatCcy .RevenuePerRecipient }}</td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
+
+    <h4>Flows</h4>
+    <table>
+      <thead>
+        <th>Name</th>
+        <th>Total Recipients</th>
+        <th>Orders Placed</th>
+        <th>Conversion Rate</th>
+        <th>Conversion Value</th>
+        <th>Revenue Per Recipient</th>
+      </thead>
+      <tbody>
+        {{ range .Flows }}
+        <tr>
+          <td>{{ .Name }}</td>
+          <td>{{ .TotalRecipients }}</td>
+          <td>{{ .OrdersPlaced }}</td>
+          <td>{{ formatPercent .ConversionRate }}</td>
+          <td>{{ formatCcy .ConversionValue }}</td>
+          <td>{{ formatCcy .RevenuePerRecipient }}</td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
   </body>
 </html>
