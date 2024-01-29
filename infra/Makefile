@@ -13,7 +13,7 @@ deploy: push
 	  --region ${REGION} \
 	  --project=${PROJECT_ID} \
 	  --allow-unauthenticated \
-	  --set-env-vars REDIS_URL=${REDIS_URL},GIN_MODE=${GIN_MODE},API_KEY=${API_KEY}
+	  --set-env-vars REDIS_URL=${REDIS_URL},GIN_MODE=${GIN_MODE},API_KEY=${API_KEY},KLAVIYO_API_KEY=${KLAVIYO_API_KEY}
 
 run: build
 	docker run -p 8080:8080 \
