@@ -132,6 +132,7 @@ func calculateCampaign(name string, metric Metric, recipientCount int) KlaviyoRe
 	campaign := KlaviyoReportTemplateCampaign{}
 	campaign.Name = name
 	campaign.TotalRecipients = recipientCount
+	campaign.OrdersPlaced = metric.Count
 
 	if metric.Count == 0 || metric.Revenue == 0 || recipientCount == 0 {
 		return campaign
