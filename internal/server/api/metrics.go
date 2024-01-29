@@ -113,7 +113,7 @@ func (s *Service) getMetrics(ctx context.Context, by string) (MetricsByCampaignI
 func sumMeasurement(measurements interface{}) (float64, error) {
 	vals, ok := measurements.([]interface{})
 	if !ok {
-		return 0, fmt.Errorf("failed to convert metric aggregate measurement to float64")
+		return 0, fmt.Errorf("failed to convert metric aggregate measurement")
 	}
 
 	sum := 0.
